@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-"""Car Speed Estimator - Local Version"""
+"""Car Speed Estimator - Frame-by-Frame Control Version"""
 
-# This comment was added by Warp - you should see this change in VS Code immediately!
+# This version provides enhanced frame-by-frame control
 # Import required libraries
 
 import cv2
@@ -25,15 +25,43 @@ up = {}
 counter_down = []
 counter_up = []
 
+print("=== FRAME-BY-FRAME VIDEO CONTROL ===")
+print("Controls:")
+print("  SPACEBAR - Next frame")
+print("  'p' - Play/Pause (auto-advance)")
+print("  'r' - Reset to beginning")
+print("  ESC - Exit")
+print("=====================================")
+
+auto_play = False
+current_frame = 0
+total_frames = int(vi.get(cv2.CAP_PROP_FRAME_COUNT))
+
 while True:
   ret,frame=vi.read()
   if not ret:
-    break
+    print("End of video reached. Press 'r' to restart or ESC to exit.")
+    key = cv2.waitKey(0) & 0xFF
+    if key == ord('r'):  # Reset video
+        vi.set(cv2.CAP_PROP_POS_FRAMES, 0)
+        current_frame = 0
+        count = 0
+        down.clear()
+        up.clear()
+        counter_down.clear()
+        counter_up.clear()
+        continue
+    elif key == 27:  # ESC
+        break
+    else:
+        continue
+        
   count+=1
+  current_frame = int(vi.get(cv2.CAP_PROP_POS_FRAMES))
   frame=cv2.resize(frame,(1020,500))
 
   results=model.predict(frame)
-  print(results[0].boxes.data.shape) # prints the shape of the detected bounding boxes
+  print(f"Frame {current_frame}/{total_frames}: {results[0].boxes.data.shape}") # prints the shape of the detected bounding boxes
   a=results[0].boxes.data
   a=a.detach().cpu().numpy()
   px=pd.DataFrame(a).astype("float")
@@ -107,17 +135,36 @@ while True:
 
     cv2.putText(frame, ('Going Down - ' + str(len(counter_down))), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, text_color, 1, cv2.LINE_AA)
     cv2.putText(frame, ('Going Up - ' + str(len(counter_up))), (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.5, text_color, 1, cv2.LINE_AA)
+    
+    # Add frame counter
+    cv2.putText(frame, f'Frame: {current_frame}/{total_frames}', (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.5, text_color, 1, cv2.LINE_AA)
+    
+    # Add play mode indicator
+    mode_text = "AUTO" if auto_play else "MANUAL"
+    cv2.putText(frame, f'Mode: {mode_text}', (10, 120), cv2.FONT_HERSHEY_SIMPLEX, 0.5, text_color, 1, cv2.LINE_AA)
 
-  cv2.imshow('Car Speed Estimation', frame)
+  cv2.imshow('Car Speed Estimation - Frame Control', frame)
   
-  # Frame-by-frame control:
-  # Press SPACEBAR to advance to next frame
-  # Press ESC to exit
-  key = cv2.waitKey(0) & 0xFF  # Wait for key press (0 = wait indefinitely)
+  # Enhanced frame control
+  wait_time = 100 if auto_play else 0  # Auto-play with 100ms delay, or wait for key
+  key = cv2.waitKey(wait_time) & 0xFF
+  
   if key == 27:  # ESC key to exit
      break
-  elif key == ord(' '):  # SPACEBAR to continue to next frame
+  elif key == ord(' '):  # SPACEBAR - next frame (always works)
      continue
+  elif key == ord('p'):  # 'p' - toggle play/pause
+     auto_play = not auto_play
+     print(f"Mode changed to: {'AUTO-PLAY' if auto_play else 'MANUAL (frame-by-frame)'}")
+  elif key == ord('r'):  # 'r' - restart video
+     vi.set(cv2.CAP_PROP_POS_FRAMES, 0)
+     current_frame = 0
+     count = 0
+     down.clear()
+     up.clear()
+     counter_down.clear()
+     counter_up.clear()
+     print("Video restarted")
+
 vi.release()
 cv2.destroyAllWindows()
-
