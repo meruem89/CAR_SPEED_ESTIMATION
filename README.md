@@ -54,30 +54,94 @@ This project combines computer vision-based vehicle speed estimation with VANET 
 - **`vanet_speed_sharing.py`** - VANET communication module
 - **`tracker.py`** - Vehicle tracking algorithm
 
-## 🚀 Quick Start
+## 🎥 Live Demo
 
-### Prerequisites
+### 🎬 Demo Video
+*Coming Soon: Upload a demo video/GIF showing the VANET communication in action*
+
+### 🌐 Online Demo
+*Future Enhancement: Web-based demo using Streamlit or Gradio*
+
+---
+
+## 🚀 Quick Start Guide
+
+### 📋 Prerequisites
+
+**System Requirements:**
+- Python 3.8 or higher
+- Git (for cloning)
+- Webcam or video file (highway_mini.mp4 included)
+
+**Install Dependencies:**
 ```bash
 pip install ultralytics opencv-python pandas numpy
 ```
 
-### Running the Application
+### 📥 Installation Steps
 
-**Main VANET Implementation:**
+**1. Clone the Repository:**
+```bash
+git clone https://github.com/meruem89/CAR_SPEED_ESTIMATION.git
+cd CAR_SPEED_ESTIMATION
+```
+
+**2. Install Required Packages:**
+```bash
+# Install all dependencies at once
+pip install ultralytics opencv-python pandas numpy
+
+# Or use requirements.txt (if available)
+# pip install -r requirements.txt
+```
+
+**3. Verify Installation:**
+```bash
+python -c "import cv2, pandas, ultralytics; print('✅ All dependencies installed successfully!')"
+```
+
+### 🎮 Running the Application
+
+**🌟 Main VANET Implementation (Recommended):**
 ```bash
 python vanet_range_based.py
 ```
+*Features: Range-based communication, clean visualization, real-time V2V*
 
-**Research/Analysis Mode:**
+**🔬 Research/Analysis Mode:**
 ```bash
 python vanet_analysis_slow.py
 ```
+*Features: Detailed logs, frame-by-frame analysis, research insights*
 
-### Controls
+**⚡ Enhanced VANET Version:**
+```bash
+python car_speed_estimator_vanet.py
+```
+*Features: Advanced controls, video restart, multiple modes*
+
+### 🎛️ Controls & Usage
+
+**Basic Controls:**
 - **SPACEBAR** - Next frame (manual mode)
-- **'p'** - Toggle auto/manual playback
+- **'p'** - Toggle auto/manual playback  
 - **'r'** - Restart video (where available)
 - **ESC** - Exit application
+
+**What You'll See:**
+- 🟢 **Green rectangles** - Detected vehicles
+- 🔴 **Red dots** - Vehicle center points
+- 🟡 **Yellow lines** - Active V2V communications
+- 🟡 **Yellow circles** - Communication range
+- 📊 **Speed data** - Above communicating vehicles
+
+### ⚡ Quick Test
+
+**Run this for instant demo:**
+```bash
+# Clone and run in one go
+git clone https://github.com/meruem89/CAR_SPEED_ESTIMATION.git && cd CAR_SPEED_ESTIMATION && pip install ultralytics opencv-python pandas numpy && python vanet_range_based.py
+```
 
 ## 🎮 Application Modes
 
