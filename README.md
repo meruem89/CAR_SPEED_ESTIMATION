@@ -31,11 +31,20 @@ This project combines computer vision-based vehicle speed estimation with VANET 
 ## 📁 Project Files
 
 ### 🎯 Main Applications
+
+- **`vanet_universal.py`** ✨ - **Universal Video Support** (NEW!)
+  - **Works with ANY video file**
+  - Auto-detects video dimensions and adapts
+  - Command-line interface with options
+  - Save output videos
+  - Smart scenario detection
+
 - **`vanet_range_based.py`** ⭐ - **Primary Implementation**
   - Range-based VANET communication (180px range)
   - Clean vehicle visualization (green squares + red dots)
   - Speed display above all communicating vehicles
   - Frame-by-frame control
+  - Works with highway_mini.mp4
 
 - **`vanet_analysis_slow.py`** - **Research Mode**
   - Ultra-detailed VANET analysis
@@ -88,11 +97,11 @@ cd CAR_SPEED_ESTIMATION
 
 **2. Install Required Packages:**
 ```bash
-# Install all dependencies at once
-pip install ultralytics opencv-python pandas numpy
+# Option 1: Use requirements.txt (Recommended)
+pip install -r requirements.txt
 
-# Or use requirements.txt (if available)
-# pip install -r requirements.txt
+# Option 2: Install manually
+pip install ultralytics opencv-python pandas numpy torch Pillow
 ```
 
 **3. Verify Installation:**
@@ -100,9 +109,22 @@ pip install ultralytics opencv-python pandas numpy
 python -c "import cv2, pandas, ultralytics; print('✅ All dependencies installed successfully!')"
 ```
 
-### 🎮 Running the Application
+### 🎟️ Running the Application
 
-**🌟 Main VANET Implementation (Recommended):**
+**✨ Universal Version (Works with ANY video):**
+```bash
+# Use your own video file
+python vanet_universal.py --video your_video.mp4
+
+# With custom settings
+python vanet_universal.py --video traffic.mp4 --range 250 --distance 50
+
+# Save output video
+python vanet_universal.py --video input.mp4 --output result.mp4
+```
+*Features: Any video format, auto-adaptation, command-line options*
+
+**🌟 Main VANET Implementation (Highway video):**
 ```bash
 python vanet_range_based.py
 ```
@@ -140,8 +162,90 @@ python car_speed_estimator_vanet.py
 **Run this for instant demo:**
 ```bash
 # Clone and run in one go
-git clone https://github.com/meruem89/CAR_SPEED_ESTIMATION.git && cd CAR_SPEED_ESTIMATION && pip install ultralytics opencv-python pandas numpy && python vanet_range_based.py
+git clone https://github.com/meruem89/CAR_SPEED_ESTIMATION.git && cd CAR_SPEED_ESTIMATION && pip install -r requirements.txt && python vanet_range_based.py
 ```
+
+---
+
+## 🔧 Troubleshooting
+
+### Common Issues & Solutions
+
+**❌ Issue: `ModuleNotFoundError: No module named 'ultralytics'`**
+```bash
+# Solution: Install missing dependencies
+pip install -r requirements.txt
+```
+
+**❌ Issue: `cv2.error` or OpenCV issues**
+```bash
+# Solution: Reinstall OpenCV
+pip uninstall opencv-python
+pip install opencv-python
+```
+
+**❌ Issue: YOLO model download fails**
+```bash
+# Solution: Manual model download
+wget https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8n.pt
+# Or download from: https://github.com/ultralytics/ultralytics
+```
+
+**❌ Issue: Video file not found**
+- Ensure `highway_mini.mp4` is in the project directory
+- Or replace with your own video file in the code
+
+**❌ Issue: Performance is slow**
+```bash
+# Solution: Install GPU support (if available)
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
+```
+
+### Platform-Specific Instructions
+
+**🐧 Linux/Ubuntu:**
+```bash
+# Install system dependencies
+sudo apt update
+sudo apt install python3-pip git
+
+# Clone and install
+git clone https://github.com/meruem89/CAR_SPEED_ESTIMATION.git
+cd CAR_SPEED_ESTIMATION
+pip3 install -r requirements.txt
+python3 vanet_range_based.py
+```
+
+**🍎 macOS:**
+```bash
+# Install Homebrew (if not already installed)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Install Python and Git
+brew install python git
+
+# Clone and install
+git clone https://github.com/meruem89/CAR_SPEED_ESTIMATION.git
+cd CAR_SPEED_ESTIMATION
+pip3 install -r requirements.txt
+python3 vanet_range_based.py
+```
+
+**🧪 Windows:**
+```powershell
+# Using PowerShell
+git clone https://github.com/meruem89/CAR_SPEED_ESTIMATION.git
+cd CAR_SPEED_ESTIMATION
+pip install -r requirements.txt
+python vanet_range_based.py
+```
+
+### Getting Help
+
+**💬 Need help?**
+- Create an issue on GitHub: [Issues Page](https://github.com/meruem89/CAR_SPEED_ESTIMATION/issues)
+- Check existing issues for solutions
+- Provide system info, Python version, and error messages
 
 ## 🎮 Application Modes
 
