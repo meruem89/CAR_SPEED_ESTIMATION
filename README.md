@@ -16,6 +16,7 @@ This project combines computer vision-based vehicle speed estimation with VANET 
 ## 🏗️ System Architecture
 
 ### Core Components
+
 1. **YOLOv8 Detection Engine** - Identifies vehicles in video frames
 2. **Vehicle Tracking System** - Maintains vehicle identities across frames
 3. **Speed Calculation Module** - Computes speeds using reference line crossings
@@ -23,6 +24,7 @@ This project combines computer vision-based vehicle speed estimation with VANET 
 5. **Visualization Engine** - Renders vehicles, communications, and data overlays
 
 ### Speed Calculation Method
+
 - **Dual-line System**: Red line (y=198) and Blue line (y=268)
 - **Distance**: 100 meters between reference lines
 - **Formula**: Speed = Distance / Time_elapsed
@@ -32,14 +34,27 @@ This project combines computer vision-based vehicle speed estimation with VANET 
 
 ### 🎯 Main Applications
 
-- **`vanet_universal.py`** ✨ - **Universal Video Support** (NEW!)
+- **`vanet_mac_dashboard.py`** ⭐ **NEW - MAC Address-Based VANET with Dashboard** (RECOMMENDED)
+
+  - **Realistic vehicle identification using MAC addresses**
+  - **Multi-directional dashboard** showing surrounding vehicles
+  - **Position-based identification** (Front, Left, Right zones)
+  - **Distance calculation** in meters/kilometers
+  - **Filters out vehicles behind** - shows only relevant vehicles ahead and on sides
+  - **Continuous speed broadcasting** - not just at timing lines
+  - **Professional dashboard interface** with color-coded warnings
+  - Addresses academic review concerns about vehicle identification
+
+- **`vanet_universal.py`** ✨ - **Universal Video Support**
+
   - **Works with ANY video file**
   - Auto-detects video dimensions and adapts
   - Command-line interface with options
   - Save output videos
   - Smart scenario detection
 
-- **`vanet_range_based.py`** ⭐ - **Primary Implementation**
+- **`vanet_range_based.py`** - **Basic VANET Implementation**
+
   - Range-based VANET communication (180px range)
   - Clean vehicle visualization (green squares + red dots)
   - Speed display above all communicating vehicles
@@ -47,6 +62,7 @@ This project combines computer vision-based vehicle speed estimation with VANET 
   - Works with highway_mini.mp4
 
 - **`vanet_analysis_slow.py`** - **Research Mode**
+
   - Ultra-detailed VANET analysis
   - Console communication logging
   - Signal strength visualization
@@ -58,6 +74,7 @@ This project combines computer vision-based vehicle speed estimation with VANET 
   - Multiple viewing modes
 
 ### 🔧 Supporting Files
+
 - **`car_speed_estimator_frame_control.py`** - Frame control without VANET
 - **`car_speed_estimator.py`** - Basic speed estimation
 - **`vanet_speed_sharing.py`** - VANET communication module
@@ -66,10 +83,12 @@ This project combines computer vision-based vehicle speed estimation with VANET 
 ## 🎥 Live Demo
 
 ### 🎬 Demo Video
-*Coming Soon: Upload a demo video/GIF showing the VANET communication in action*
+
+_Coming Soon: Upload a demo video/GIF showing the VANET communication in action_
 
 ### 🌐 Online Demo
-*Future Enhancement: Web-based demo using Streamlit or Gradio*
+
+_Future Enhancement: Web-based demo using Streamlit or Gradio_
 
 ---
 
@@ -78,11 +97,13 @@ This project combines computer vision-based vehicle speed estimation with VANET 
 ### 📋 Prerequisites
 
 **System Requirements:**
+
 - Python 3.8 or higher
 - Git (for cloning)
 - Webcam or video file (highway_mini.mp4 included)
 
 **Install Dependencies:**
+
 ```bash
 pip install ultralytics opencv-python pandas numpy
 ```
@@ -90,12 +111,14 @@ pip install ultralytics opencv-python pandas numpy
 ### 📥 Installation Steps
 
 **1. Clone the Repository:**
+
 ```bash
 git clone https://github.com/meruem89/CAR_SPEED_ESTIMATION.git
 cd CAR_SPEED_ESTIMATION
 ```
 
 **2. Install Required Packages:**
+
 ```bash
 # Option 1: Use requirements.txt (Recommended)
 pip install -r requirements.txt
@@ -105,13 +128,23 @@ pip install ultralytics opencv-python pandas numpy torch Pillow
 ```
 
 **3. Verify Installation:**
+
 ```bash
 python -c "import cv2, pandas, ultralytics; print('✅ All dependencies installed successfully!')"
 ```
 
 ### 🎟️ Running the Application
 
+**⭐ NEW - MAC-Based VANET with Dashboard (RECOMMENDED):**
+
+```bash
+python vanet_mac_dashboard.py
+```
+
+_Features: Realistic MAC addressing, multi-directional dashboard, position-based vehicle identification, distance display, filters vehicles behind, continuous speed broadcasting_
+
 **✨ Universal Version (Works with ANY video):**
+
 ```bash
 # Use your own video file
 python vanet_universal.py --video your_video.mp4
@@ -122,35 +155,44 @@ python vanet_universal.py --video traffic.mp4 --range 250 --distance 50
 # Save output video
 python vanet_universal.py --video input.mp4 --output result.mp4
 ```
-*Features: Any video format, auto-adaptation, command-line options*
 
-**🌟 Main VANET Implementation (Highway video):**
+_Features: Any video format, auto-adaptation, command-line options_
+
+**🌟 Basic VANET Implementation (Highway video):**
+
 ```bash
 python vanet_range_based.py
 ```
-*Features: Range-based communication, clean visualization, real-time V2V*
+
+_Features: Range-based communication, clean visualization, real-time V2V_
 
 **🔬 Research/Analysis Mode:**
+
 ```bash
 python vanet_analysis_slow.py
 ```
-*Features: Detailed logs, frame-by-frame analysis, research insights*
+
+_Features: Detailed logs, frame-by-frame analysis, research insights_
 
 **⚡ Enhanced VANET Version:**
+
 ```bash
 python car_speed_estimator_vanet.py
 ```
-*Features: Advanced controls, video restart, multiple modes*
+
+_Features: Advanced controls, video restart, multiple modes_
 
 ### 🎛️ Controls & Usage
 
 **Basic Controls:**
+
 - **SPACEBAR** - Next frame (manual mode)
-- **'p'** - Toggle auto/manual playback  
+- **'p'** - Toggle auto/manual playback
 - **'r'** - Restart video (where available)
 - **ESC** - Exit application
 
 **What You'll See:**
+
 - 🟢 **Green rectangles** - Detected vehicles
 - 🔴 **Red dots** - Vehicle center points
 - 🟡 **Yellow lines** - Active V2V communications
@@ -160,6 +202,7 @@ python car_speed_estimator_vanet.py
 ### ⚡ Quick Test
 
 **Run this for instant demo:**
+
 ```bash
 # Clone and run in one go
 git clone https://github.com/meruem89/CAR_SPEED_ESTIMATION.git && cd CAR_SPEED_ESTIMATION && pip install -r requirements.txt && python vanet_range_based.py
@@ -172,12 +215,14 @@ git clone https://github.com/meruem89/CAR_SPEED_ESTIMATION.git && cd CAR_SPEED_E
 ### Common Issues & Solutions
 
 **❌ Issue: `ModuleNotFoundError: No module named 'ultralytics'`**
+
 ```bash
 # Solution: Install missing dependencies
 pip install -r requirements.txt
 ```
 
 **❌ Issue: `cv2.error` or OpenCV issues**
+
 ```bash
 # Solution: Reinstall OpenCV
 pip uninstall opencv-python
@@ -185,6 +230,7 @@ pip install opencv-python
 ```
 
 **❌ Issue: YOLO model download fails**
+
 ```bash
 # Solution: Manual model download
 wget https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8n.pt
@@ -192,10 +238,12 @@ wget https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8n.pt
 ```
 
 **❌ Issue: Video file not found**
+
 - Ensure `highway_mini.mp4` is in the project directory
 - Or replace with your own video file in the code
 
 **❌ Issue: Performance is slow**
+
 ```bash
 # Solution: Install GPU support (if available)
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
@@ -204,6 +252,7 @@ pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
 ### Platform-Specific Instructions
 
 **🐧 Linux/Ubuntu:**
+
 ```bash
 # Install system dependencies
 sudo apt update
@@ -217,6 +266,7 @@ python3 vanet_range_based.py
 ```
 
 **🍎 macOS:**
+
 ```bash
 # Install Homebrew (if not already installed)
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -232,6 +282,7 @@ python3 vanet_range_based.py
 ```
 
 **🧪 Windows:**
+
 ```powershell
 # Using PowerShell
 git clone https://github.com/meruem89/CAR_SPEED_ESTIMATION.git
@@ -243,6 +294,7 @@ python vanet_range_based.py
 ### Getting Help
 
 **💬 Need help?**
+
 - Create an issue on GitHub: [Issues Page](https://github.com/meruem89/CAR_SPEED_ESTIMATION/issues)
 - Check existing issues for solutions
 - Provide system info, Python version, and error messages
@@ -250,7 +302,9 @@ python vanet_range_based.py
 ## 🎮 Application Modes
 
 ### 1. Range-Based VANET (`vanet_range_based.py`) ⭐
+
 **Perfect for demonstrations and real-world simulation**
+
 - All vehicles shown as green rectangles with red center dots
 - Speed calculated when crossing second reference line
 - Broadcasts to ALL vehicles within 180-pixel communication range
@@ -259,7 +313,9 @@ python vanet_range_based.py
 - Real-time status panel with VANET statistics
 
 ### 2. Analysis Mode (`vanet_analysis_slow.py`)
+
 **Ideal for research and detailed study**
+
 - Step-by-step frame analysis
 - Detailed communication logs in console
 - Signal strength indicators
@@ -267,7 +323,9 @@ python vanet_range_based.py
 - Enhanced information panels for each vehicle
 
 ### 3. Enhanced VANET (`car_speed_estimator_vanet.py`)
+
 **Full-featured with advanced controls**
+
 - Multiple playback modes
 - Video restart capability
 - Frame counter and progress tracking
@@ -275,7 +333,51 @@ python vanet_range_based.py
 
 ## 📊 VANET Communication Protocol
 
+### MAC Address-Based Vehicle Identification (NEW)
+
+**Realistic Approach:**
+
+- Each vehicle assigned unique MAC address (e.g., A3:4F:2E:D1:8C:9B)
+- Simulates real VANET on-board unit identifiers
+- Position-based vehicle identification system
+- Driver dashboard shows contextual information, not technical MAC addresses
+
+**Multi-Directional Detection:**
+
+```
+        FRONT-LEFT    FRONT    FRONT-RIGHT
+              \        |        /
+               \       |       /
+                \      |      /
+    LEFT -------- [YOUR CAR] -------- RIGHT
+
+                  (Behind vehicles filtered out)
+```
+
+**Dashboard Display:**
+
+- **Zone-based information**: Shows vehicles in Front, Front-Left, Front-Right, Left, Right zones
+- **Distance measurement**: Displays distance in meters/kilometers
+- **Speed information**: Real-time speed of surrounding vehicles
+- **Color-coded warnings**: Red (< 20m), Yellow (20-50m), Green (> 50m)
+- **Sorted by proximity**: Closest vehicles shown first
+
+**Message Structure:**
+
+```python
+{
+    'from_mac': 'A3:4F:2E:D1:8C:9B',  # Sender's MAC address
+    'speed': 80.5,                     # Speed in km/h
+    'position': (450, 200),            # Sender position
+    'direction': 'UP',                 # Traffic direction
+    'relative_direction': 'FRONT',    # Relative to receiver
+    'distance': 50.0,                  # Distance in pixels
+    'timestamp': 1699999999.123        # Message timestamp
+}
+```
+
 ### Communication Flow
+
 1. **Detection Phase**: YOLOv8 detects vehicles in frame
 2. **Tracking Phase**: Tracker maintains vehicle identities
 3. **Speed Calculation**: Vehicle crosses reference lines → speed computed
@@ -284,19 +386,64 @@ python vanet_range_based.py
 6. **Visualization**: Communication links and data shown on screen
 
 ### Message Structure
+
 ```python
 {
-    'from_vehicle': int,     # Sender vehicle ID
+    'from_vehicle': int,     # Sender vehicle ID (basic version)
+    'from_mac': str,         # Sender MAC address (new version)
     'speed': float,          # Speed in km/h
     'direction': str,        # UP/DOWN traffic direction
-    'timestamp': float,      # Message timestamp
-    'distance': float        # Distance to receiving vehicle
+    'relative_direction': str, # Front/Left/Right (new version)
+    'distance': float,       # Distance to receiving vehicle
+    'timestamp': float       # Message timestamp
 }
 ```
+
+## 🎯 Key Features Explained
+
+### 1. Realistic Vehicle Identification
+
+**Problem Solved:** How does a receiving vehicle identify which physical vehicle sent the message?
+
+**Solution:**
+
+- **Backend:** Uses MAC addresses for V2V communication (technical accuracy)
+- **Frontend:** Shows position-based identification (Front, Left, Right) for driver
+- **Position Calculation:** Uses Euclidean distance and angle calculations
+- **Direction Filtering:** Ignores vehicles behind, shows only relevant vehicles
+
+**Real-World Parallel:**
+
+- Similar to modern Tesla/BMW collision warning systems
+- Drivers see "Vehicle ahead: 80 km/h" not technical MAC addresses
+- Position-based awareness for safety
+
+### 2. Continuous Speed Broadcasting
+
+**Enhancement:** Vehicles broadcast speed continuously, not just after crossing timing lines
+
+**Implementation:**
+
+- **Motion-based estimation:** Calculates speed from position changes across frames
+- **Dual broadcast system:**
+  - Estimated speed: Continuous updates during vehicle tracking
+  - Calculated speed: Accurate measurement at timing lines
+- **Real-time updates:** Other vehicles receive current speed information
+
+### 3. Multi-Zone Dashboard
+
+**Driver Interface:**
+
+- Visual representation of surrounding vehicles
+- Zone-based display (Front-Left, Front, Front-Right, Left, Right)
+- Distance and speed for each zone
+- Sorted list of nearest vehicles
+- Color-coded proximity warnings
 
 ## 📈 Technical Specifications
 
 ### Performance Metrics
+
 - **Detection Accuracy**: YOLOv8n model on COCO dataset
 - **Processing Speed**: Real-time on standard hardware
 - **Communication Range**: 180 pixels (≈300 meters real-world)
@@ -304,6 +451,7 @@ python vanet_range_based.py
 - **Frame Rate**: 30 FPS (adjustable)
 
 ### System Requirements
+
 - **Python**: 3.8+
 - **OpenCV**: 4.5+
 - **Ultralytics**: Latest
@@ -312,16 +460,19 @@ python vanet_range_based.py
 ## 🎯 Use Cases
 
 ### Academic Research
+
 - **VANET Protocol Studies**: Analyze V2V communication patterns
 - **Traffic Flow Analysis**: Study vehicle speed distributions
 - **Algorithm Testing**: Evaluate tracking and detection performance
 
 ### Industry Applications
+
 - **Smart Traffic Systems**: Real-time traffic monitoring
 - **Autonomous Vehicles**: V2V communication simulation
 - **Transportation Planning**: Traffic pattern analysis
 
 ### Educational Purposes
+
 - **Computer Vision**: Object detection and tracking
 - **Networking**: VANET communication protocols
 - **Data Visualization**: Real-time system monitoring
@@ -329,6 +480,7 @@ python vanet_range_based.py
 ## 🔬 Research Insights
 
 ### Key Findings
+
 - **Communication Effectiveness**: Range-based broadcasting reaches more vehicles than directional-only
 - **Visual Clarity**: Clean visualization improves understanding of V2V interactions
 - **Real-time Performance**: System maintains responsiveness with multiple communicating vehicles
@@ -337,11 +489,12 @@ python vanet_range_based.py
 ## 🛠️ Customization Options
 
 ### Adjustable Parameters
+
 ```python
 # Communication range (pixels)
 communication_range = 180
 
-# Message lifetime (seconds) 
+# Message lifetime (seconds)
 message_lifetime = 8.0
 
 # Reference line positions
@@ -356,11 +509,12 @@ distance_between_lines = 100
 
 ![VANET Communication Visualization](model%20output.png)
 
-*Vehicles communicating speeds through VANET protocol with visual feedback*
+_Vehicles communicating speeds through VANET protocol with visual feedback_
 
 ## 🤝 Contributing
 
 Contributions are welcome! Areas for improvement:
+
 - Enhanced tracking algorithms
 - Additional VANET protocols
 - Performance optimizations
