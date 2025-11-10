@@ -272,14 +272,16 @@ def main():
         uploaded_file = st.file_uploader("Choose a video file", type=['mp4', 'avi', 'mov'])
         
         st.markdown("---")
-        st.info("💡 **Note:** Upload your video file. The system will process it using YOLO object detection and VANET communication.")
+        st.info("💡 **Note:** Upload your video file. The system will process it frame-by-frame using YOLO object detection and VANET communication.")
         
         st.markdown("---")
         st.header("⚙️ Settings")
         show_stats = st.checkbox("Show Statistics", value=True)
-        frame_skip = st.slider("Frame Skip (Speed)", 1, 5, 1)
         
         st.markdown("---")
+        st.header("🎮 Controls")
+        st.info("🎯 **Frame-by-frame mode**\n\nPress **SPACE** to pause/resume\n\nPress **Q** to quit")
+        
         run_button = st.button("▶️ Run Analysis", type="primary", use_container_width=True)
         stop_button = st.button("⏹️ Stop", use_container_width=True)
     
@@ -338,118 +340,154 @@ def main():
         total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         fps = int(cap.get(cv2.CAP_PROP_FPS))
         
-        status_text.text(f"📹 Processing video: {total_frames} frames @ {fps} FPS")
+        status_text.text(f"📹 Processing video: {total_frames} frames @ {fps} FPS | Press SPACE to pause/resume, Q to quit")
+        
+        # Create OpenCV window for keyboard control
+        cv2.namedWindow('VANET Control (Press SPACE to pause, Q to quit)', cv2.WINDOW_NORMAL)
+        cv2.resizeWindow('VANET Control (Press SPACE to pause, Q to quit)', 400, 100)
+        
+        # Create a control image
+        control_img = np.zeros((100, 400, 3), dtype=np.uint8)
+        cv2.putText(control_img, 'Press SPACE to Pause/Resume', (20, 40), 
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+        cv2.putText(control_img, 'Press Q to Quit', (20, 70), 
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+        cv2.imshow('VANET Control (Press SPACE to pause, Q to quit)', control_img)
         
         frame_count = 0
+        paused = False
         
         while cap.isOpened() and st.session_state.get('running', False):
-            ret, frame = cap.read()
-            if not ret:
-                break
-            
-            frame_count += 1
-            
-            # Skip frames for speed
-            if frame_count % frame_skip != 0:
-                continue
-            
-            # Process frame
-            processed_frame, vanet, count = process_frame(
-                frame, model, tracker, vanet, down, up, 
-                counter_down, counter_up, red_line_y, blue_line_y, count
-            )
-            
-            # Convert BGR to RGB for Streamlit
-            processed_frame_rgb = cv2.cvtColor(processed_frame, cv2.COLOR_BGR2RGB)
-            
-            # Display video
-            video_placeholder.image(processed_frame_rgb, channels="RGB", use_container_width=True)
-            
-            # Update progress
-            progress = frame_count / total_frames
-            progress_bar.progress(progress)
-            
-            # Update dashboard
-            current_vehicle_id = vanet.get_latest_vehicle_with_speed()
-            
-            if current_vehicle_id is not None:
-                current = vanet.vehicles[current_vehicle_id]
+            if not paused:
+                ret, frame = cap.read()
+                if not ret:
+                    break
                 
-                with current_vehicle_container:
-                    st.markdown(f"""
-                    <div class="vehicle-info">
-                        <strong>Vehicle ID:</strong> #{current_vehicle_id}<br>
-                        <strong>MAC Address:</strong> {current['mac']}<br>
-                        <strong>Speed:</strong> {int(current['speed'])} km/h<br>
-                        <strong>Lane:</strong> {current['speed_lane']}<br>
-                        <strong>Direction:</strong> {'DOWN' if current_vehicle_id in counter_down else 'UP'}
-                    </div>
-                    """, unsafe_allow_html=True)
+                frame_count += 1
                 
-                # Previous vehicles
-                previous_ids = vanet.get_previous_vehicles(current_vehicle_id, 3)
+                # Process frame
+                processed_frame, vanet, count = process_frame(
+                    frame, model, tracker, vanet, down, up, 
+                    counter_down, counter_up, red_line_y, blue_line_y, count
+                )
                 
-                with previous_vehicles_container:
-                    if previous_ids:
-                        for prev_id in previous_ids:
-                            prev = vanet.vehicles[prev_id]
-                            
-                            # Calculate distance
-                            distance = math.sqrt(
-                                (current['x'] - prev['x'])**2 + 
-                                (current['y'] - prev['y'])**2
-                            )
-                            distance_meters = distance / vanet.pixel_per_meter
-                            
-                            # Color based on distance
-                            if distance_meters < 30:
-                                color = "🔴"
-                            elif distance_meters < 70:
-                                color = "🟡"
-                            else:
-                                color = "🟢"
-                            
-                            st.markdown(f"""
-                            <div class="previous-vehicle">
-                                {color} <strong>Vehicle #{prev_id}</strong><br>
-                                Lane: {prev['speed_lane']}<br>
-                                Distance: {int(distance_meters)}m<br>
-                                Speed: {int(prev['speed'])} km/h
-                            </div>
-                            """, unsafe_allow_html=True)
-                    else:
-                        st.info("No previous vehicles")
-            
-            # Statistics
-            if show_stats:
-                with stats_container:
-                    total_vehicles = len(counter_down) + len(counter_up)
-                    avg_speed = np.mean([v['speed'] for v in vanet.vehicles.values() 
-                                        if v['speed'] is not None]) if vanet.vehicles else 0
+                # Convert BGR to RGB for Streamlit
+                processed_frame_rgb = cv2.cvtColor(processed_frame, cv2.COLOR_BGR2RGB)
+                
+                # Display video
+                video_placeholder.image(processed_frame_rgb, channels="RGB", use_container_width=True)
+                
+                # Update progress
+                progress = frame_count / total_frames
+                progress_bar.progress(progress)
+                
+                # Update dashboard
+                current_vehicle_id = vanet.get_latest_vehicle_with_speed()
+                
+                if current_vehicle_id is not None:
+                    current = vanet.vehicles[current_vehicle_id]
                     
-                    col_a, col_b = st.columns(2)
-                    col_a.metric("Total Vehicles", total_vehicles)
-                    col_b.metric("Avg Speed", f"{int(avg_speed)} km/h")
+                    with current_vehicle_container:
+                        st.markdown(f"""
+                        <div class="vehicle-info">
+                            <strong>Vehicle ID:</strong> #{current_vehicle_id}<br>
+                            <strong>MAC Address:</strong> {current['mac']}<br>
+                            <strong>Speed:</strong> {int(current['speed'])} km/h<br>
+                            <strong>Lane:</strong> {current['speed_lane']}<br>
+                            <strong>Direction:</strong> {'DOWN' if current_vehicle_id in counter_down else 'UP'}
+                        </div>
+                        """, unsafe_allow_html=True)
                     
-                    col_c, col_d = st.columns(2)
-                    col_c.metric("DOWN", len(counter_down))
-                    col_d.metric("UP", len(counter_up))
+                    # Previous vehicles
+                    previous_ids = vanet.get_previous_vehicles(current_vehicle_id, 3)
+                    
+                    with previous_vehicles_container:
+                        if previous_ids:
+                            for prev_id in previous_ids:
+                                prev = vanet.vehicles[prev_id]
+                                
+                                # Calculate distance
+                                distance = math.sqrt(
+                                    (current['x'] - prev['x'])**2 + 
+                                    (current['y'] - prev['y'])**2
+                                )
+                                distance_meters = distance / vanet.pixel_per_meter
+                                
+                                # Color based on distance
+                                if distance_meters < 30:
+                                    color = "🔴"
+                                elif distance_meters < 70:
+                                    color = "🟡"
+                                else:
+                                    color = "🟢"
+                                
+                                st.markdown(f"""
+                                <div class="previous-vehicle">
+                                    {color} <strong>Vehicle #{prev_id}</strong><br>
+                                    Lane: {prev['speed_lane']}<br>
+                                    Distance: {int(distance_meters)}m<br>
+                                    Speed: {int(prev['speed'])} km/h
+                                </div>
+                                """, unsafe_allow_html=True)
+                        else:
+                            st.info("No previous vehicles")
+                
+                # Statistics
+                if show_stats:
+                    with stats_container:
+                        total_vehicles = len(counter_down) + len(counter_up)
+                        speeds = [v['speed'] for v in vanet.vehicles.values() if v['speed'] is not None]
+                        avg_speed = np.mean(speeds) if speeds else 0
+                        avg_speed_display = int(avg_speed) if (speeds and not np.isnan(avg_speed)) else 0
+                        
+                        col_a, col_b = st.columns(2)
+                        col_a.metric("Total Vehicles", total_vehicles)
+                        col_b.metric("Avg Speed", f"{avg_speed_display} km/h")
+                        
+                        col_c, col_d = st.columns(2)
+                        col_c.metric("DOWN", len(counter_down))
+                        col_d.metric("UP", len(counter_up))
             
-            # Stop condition
-            if stop_button:
+            # Check for keyboard input (frame-by-frame control)
+            key = cv2.waitKey(1) & 0xFF
+            
+            if key == ord(' '):  # Spacebar - pause/resume
+                paused = not paused
+                if paused:
+                    status_text.text("⏸️ PAUSED - Press SPACE to resume, Q to quit")
+                    control_img = np.zeros((100, 400, 3), dtype=np.uint8)
+                    cv2.putText(control_img, '⏸️ PAUSED', (120, 40), 
+                               cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 255), 2)
+                    cv2.putText(control_img, 'Press SPACE to Resume', (70, 70), 
+                               cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+                    cv2.imshow('VANET Control (Press SPACE to pause, Q to quit)', control_img)
+                else:
+                    status_text.text(f"▶️ PLAYING - Frame {frame_count}/{total_frames}")
+                    control_img = np.zeros((100, 400, 3), dtype=np.uint8)
+                    cv2.putText(control_img, '▶️ PLAYING', (120, 40), 
+                               cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
+                    cv2.putText(control_img, 'Press SPACE to Pause', (70, 70), 
+                               cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+                    cv2.imshow('VANET Control (Press SPACE to pause, Q to quit)', control_img)
+            
+            elif key == ord('q') or key == ord('Q'):  # Q - quit
                 st.session_state['running'] = False
                 break
             
-            # Small delay for display
-            time.sleep(0.01)
+            # Stop button check
+            if stop_button:
+                st.session_state['running'] = False
+                break
         
         cap.release()
+        cv2.destroyAllWindows()
         st.session_state['running'] = False
         status_text.text("✅ Processing complete!")
         st.success("🎉 Video processing finished!")
     
     if stop_button:
         st.session_state['running'] = False
+        cv2.destroyAllWindows()
 
 if __name__ == "__main__":
     main()

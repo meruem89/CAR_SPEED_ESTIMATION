@@ -5,4 +5,4 @@ echo ========================================
 echo.
 echo Starting Streamlit application...
 echo.
-streamlit run streamlit_app.py
+python -m streamlit run streamlit_app.py
