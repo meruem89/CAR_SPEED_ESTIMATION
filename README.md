@@ -4,7 +4,27 @@
 
 This project combines computer vision-based vehicle speed estimation with VANET communication protocols, enabling vehicles to share speed information in real-time through simulated Vehicle-to-Vehicle (V2V) communication.
 
-## 🌟 Features
+## � **NEW: Web Dashboard (Streamlit)**
+
+### 🚀 Quick Start:
+```bash
+streamlit run streamlit_app.py
+```
+
+Or double-click: **`RUN_STREAMLIT.bat`**
+
+Then open your browser at: **http://localhost:8501**
+
+### Features:
+- ✅ **Web-based Interface** - No need for Python knowledge
+- ✅ **Upload Video** - Drag & drop video files
+- ✅ **Real-time Dashboard** - See vehicles, speeds, and VANET communication
+- ✅ **Interactive** - Start/stop, adjust settings on the fly
+- ✅ **Professional Presentation** - Perfect for project reviews
+
+---
+
+## �🌟 Features
 
 - **🎯 Real-time Vehicle Detection**: Uses YOLOv8 for accurate car detection
 - **⚡ Speed Calculation**: Measures vehicle speeds using dual-line timing method
