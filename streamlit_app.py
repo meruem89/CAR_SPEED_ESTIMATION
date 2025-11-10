@@ -311,12 +311,21 @@ def main():
             stats_container = st.container()
     
     # Run analysis
-    if run_button or st.session_state.get('running', False):
-        if not uploaded_file and not st.session_state.get('running', False):
-            st.warning("⚠️ Please upload a video file first!")
-            return
-        
+    if run_button:
         st.session_state['running'] = True
+        st.session_state['paused'] = False
+        st.rerun()
+    
+    if stop_button:
+        st.session_state['running'] = False
+        st.session_state['paused'] = False
+        cv2.destroyAllWindows()
+        st.rerun()
+    
+    if st.session_state.get('running', False):
+        if not uploaded_file and not run_button:
+            st.info("💡 Click 'Run Analysis' to start processing the video")
+            return
         
         # Use the existing highway_mini.mp4 (ignore uploaded file for now)
         video_path = 'highway_mini.mp4'
