@@ -7,6 +7,7 @@ This project combines computer vision-based vehicle speed estimation with VANET 
 ## � **NEW: Web Dashboard (Streamlit)**
 
 ### 🚀 Quick Start:
+
 ```bash
 streamlit run streamlit_app.py
 ```
@@ -16,6 +17,7 @@ Or double-click: **`RUN_STREAMLIT.bat`**
 Then open your browser at: **http://localhost:8501**
 
 ### Features:
+
 - ✅ **Web-based Interface** - No need for Python knowledge
 - ✅ **Upload Video** - Drag & drop video files
 - ✅ **Real-time Dashboard** - See vehicles, speeds, and VANET communication

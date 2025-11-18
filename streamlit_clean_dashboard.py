@@ -104,6 +104,8 @@ if 'initialized' not in st.session_state:
     st.session_state.counter_down = []
     st.session_state.counter_up = []
     st.session_state.cap = None
+    st.session_state.step_once = False
+    st.session_state.last_frame = None
 
 
 def process_frame(frame, tracker, vanet, down, up, counter_down, counter_up):
@@ -298,6 +300,8 @@ with col1:
         st.session_state.up = {}
         st.session_state.counter_down = []
         st.session_state.counter_up = []
+        st.session_state.step_once = False
+        st.session_state.last_frame = None
 
 with col2:
     if st.button("⏸️ Pause", use_container_width=True):
@@ -310,6 +314,7 @@ with col3:
 with col4:
     if st.button("⏭️ Next Frame", use_container_width=True):
         st.session_state.playing = False
+        st.session_state.step_once = True
         st.session_state.frame_idx += 1
 
 with col5:
@@ -319,6 +324,8 @@ with col5:
             st.session_state.cap.release()
             st.session_state.cap = None
         st.session_state.frame_idx = 0
+        st.session_state.step_once = False
+        st.session_state.last_frame = None
 
 st.markdown("---")
 
@@ -328,10 +335,10 @@ if st.session_state.cap is not None:
     video_col, dashboard_col = st.columns([7, 3])
     
     # Process frame
-    if st.session_state.playing or st.session_state.frame_idx > 0:
+    if st.session_state.playing or st.session_state.step_once:
         st.session_state.cap.set(cv2.CAP_PROP_POS_FRAMES, st.session_state.frame_idx)
         ret, frame = st.session_state.cap.read()
-        
+
         if ret:
             processed_frame = process_frame(
                 frame,
@@ -342,16 +349,16 @@ if st.session_state.cap is not None:
                 st.session_state.counter_down,
                 st.session_state.counter_up
             )
-            
+
+            # Convert and remember last frame for pause state
+            frame_rgb = cv2.cvtColor(processed_frame, cv2.COLOR_BGR2RGB)
+            st.session_state.last_frame = frame_rgb
+
             # Display video
             with video_col:
                 st.subheader(f"📹 Video - Frame {st.session_state.frame_idx + 1}")
-                frame_rgb = cv2.cvtColor(processed_frame, cv2.COLOR_BGR2RGB)
-                # Convert to PIL Image to avoid Streamlit media storage issues
-                from PIL import Image as PILImage
-                pil_image = PILImage.fromarray(frame_rgb)
-                st.image(pil_image, use_container_width=True)
-            
+                st.image(frame_rgb, use_column_width=True)
+
             # Display dashboard
             with dashboard_col:
                 st.subheader("📊 Dashboard")
@@ -448,17 +455,123 @@ if st.session_state.cap is not None:
                 
                 st.markdown('</div>', unsafe_allow_html=True)
             
-            # Auto-advance if playing
+            # Auto-advance if playing, else clear step_once
             if st.session_state.playing:
                 st.session_state.frame_idx += 1
                 time.sleep(0.03)  # ~30 FPS
                 st.rerun()
+            else:
+                st.session_state.step_once = False
         else:
             st.info("✅ End of video")
             st.session_state.playing = False
             if st.session_state.cap is not None:
                 st.session_state.cap.release()
                 st.session_state.cap = None
+    else:
+        # Paused: display the last rendered frame without re-reading video
+        with video_col:
+            st.subheader(f"📹 Video - Frame {st.session_state.frame_idx if st.session_state.frame_idx>0 else 1}")
+            if st.session_state.last_frame is not None:
+                st.image(st.session_state.last_frame, use_column_width=True)
+            else:
+                st.caption("Paused. No frame to display yet.")
+        
+        # Display dashboard even when paused
+        with dashboard_col:
+            st.subheader("📊 Dashboard")
+            
+            current_id = st.session_state.vanet.get_latest_vehicle_with_speed()
+            
+            # ========== CURRENT VEHICLE ==========
+            st.markdown('<div class="dashboard-section current-vehicle-section">', unsafe_allow_html=True)
+            st.markdown('<div class="section-title current-title">CURRENT VEHICLE</div>', unsafe_allow_html=True)
+            
+            if current_id is None or current_id not in st.session_state.vanet.vehicles:
+                st.markdown('<div class="metric-label">Waiting for vehicle to cross 2nd line...</div>', unsafe_allow_html=True)
+            else:
+                vehicle_data = st.session_state.vanet.vehicles[current_id]
+                
+                st.markdown(f'<div class="metric-label">Vehicle ID</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="metric-value">#{current_id}</div>', unsafe_allow_html=True)
+                
+                st.markdown(f'<div class="metric-label">MAC Address</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="metric-value" style="font-size: 14px;">{vehicle_data["mac"]}</div>', unsafe_allow_html=True)
+                
+                speed = vehicle_data.get('speed', 0)
+                st.markdown(f'<div class="metric-label">Speed</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="speed-value">{speed:.1f} km/h</div>', unsafe_allow_html=True)
+                
+                lane = vehicle_data.get('speed_lane', 'UNKNOWN')
+                if lane is None:
+                    lane = vehicle_data.get('lane', 'UNKNOWN')
+                st.markdown(f'<div class="metric-label">Lane</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="metric-value">{lane}</div>', unsafe_allow_html=True)
+                
+                direction = "UNKNOWN"
+                if current_id in st.session_state.counter_down:
+                    direction = "DOWN"
+                elif current_id in st.session_state.counter_up:
+                    direction = "UP"
+                st.markdown(f'<div class="metric-label">Direction</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="metric-value">{direction}</div>', unsafe_allow_html=True)
+            
+            st.markdown('</div>', unsafe_allow_html=True)
+            
+            # ========== PREVIOUS VEHICLES ==========
+            st.markdown('<div class="dashboard-section previous-vehicles-section">', unsafe_allow_html=True)
+            st.markdown('<div class="section-title previous-title">PREVIOUS VEHICLES</div>', unsafe_allow_html=True)
+            st.markdown('<div class="metric-label">(Last 3 that crossed)</div>', unsafe_allow_html=True)
+            
+            vehicles_with_speed = st.session_state.vanet.vehicles_with_speed
+            
+            if current_id is not None and current_id in vehicles_with_speed:
+                current_index = vehicles_with_speed.index(current_id)
+                previous_vehicles = []
+                for i in range(1, 4):
+                    prev_index = current_index - i
+                    if prev_index >= 0:
+                        previous_vehicles.append(vehicles_with_speed[prev_index])
+                
+                if previous_vehicles:
+                    current_vehicle = st.session_state.vanet.vehicles[current_id]
+                    current_x = current_vehicle['x']
+                    current_y = current_vehicle['y']
+                    
+                    for prev_id in previous_vehicles:
+                        if prev_id not in st.session_state.vanet.vehicles:
+                            continue
+                        
+                        prev_vehicle = st.session_state.vanet.vehicles[prev_id]
+                        prev_x = prev_vehicle['x']
+                        prev_y = prev_vehicle['y']
+                        prev_speed = prev_vehicle.get('speed', 0)
+                        prev_lane = prev_vehicle.get('speed_lane', 'Unknown')
+                        if prev_lane is None:
+                            prev_lane = prev_vehicle.get('lane', 'Unknown')
+                        
+                        distance_pixels = math.sqrt((current_x - prev_x)**2 + (current_y - prev_y)**2)
+                        distance_m = distance_pixels * st.session_state.vanet.pixel_to_meter_ratio
+                        
+                        if distance_m < 30:
+                            color_class = "distance-close"
+                        elif distance_m < 70:
+                            color_class = "distance-medium"
+                        else:
+                            color_class = "distance-far"
+                        
+                        st.markdown('<div class="vehicle-card">', unsafe_allow_html=True)
+                        st.markdown(f'<div class="{color_class}"><strong>Vehicle #{prev_id}</strong></div>', unsafe_allow_html=True)
+                        st.markdown(f'<div class="{color_class}">Lane: {prev_lane}</div>', unsafe_allow_html=True)
+                        st.markdown(f'<div class="{color_class}">Distance: {distance_m:.0f}m</div>', unsafe_allow_html=True)
+                        st.markdown(f'<div class="{color_class}">Speed: {prev_speed:.0f} km/h</div>', unsafe_allow_html=True)
+                        st.markdown('</div>', unsafe_allow_html=True)
+                else:
+                    st.markdown('<div class="metric-label">No previous vehicles</div>', unsafe_allow_html=True)
+            else:
+                st.markdown('<div class="metric-label">Waiting for vehicles...</div>', unsafe_allow_html=True)
+            
+            st.markdown('</div>', unsafe_allow_html=True)
 else:
     st.info("👆 Click **Start Analysis** to begin processing the video")
     st.markdown("""
